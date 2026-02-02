@@ -22,40 +22,41 @@ Excel 템플릿을 기반으로 주간 업무보고서를 자동 생성하는 Py
 
 ### 설치 방법
 
-1. **저장소 복제**
+1. **저장소 다운로드**
+
+**방법 A: ZIP 파일 다운로드 (권장)**
+- GitHub 저장소 페이지에서 `Code` 버튼 클릭
+- `Download ZIP` 선택
+- 원하는 위치에 압축 해제
+
+**방법 B: Git Clone**
 ```bash
-git clone https://github.com/frichel/weekly-report-generator.git
+git clone https://github.com/Frichel/weekly-report-generator.git
 cd weekly-report-generator
 ```
 
-2. **가상환경 생성 및 활성화**
-```bash
-python -m venv .venv
-.venv\Scripts\activate  # Windows
-```
+2. **자동 설치 실행**
 
-3. **필수 패키지 설치**
-```bash
-pip install -r requirements.txt
-```
-
-4. **템플릿 파일 준비**
-- `res/` 폴더에 Excel 템플릿 파일 배치
-- 파일명 형식: `WW00_부서명_업무보고서_이름.xlsx`
+다운로드한 폴더에서 **`setup.bat`** 파일을 더블클릭하세요.
+- 가상환경 자동 생성
+- 필수 패키지(openpyxl, pywin32) 자동 설치
+- 설치 완료!
 
 ## 📖 사용 방법
 
-### 수동 실행 (대화형)
+### 💡 수동 실행 (대화형)
+
+**`보고서_생성.bat`** 파일을 더블클릭하세요.
 
 사용자가 직접 입력하며 실행하는 방식입니다.
 
-```bash
-python weekly-report-generator.py
-```
-
 **실행 예시:**
 ```
-작업경로: C:\Users\...\WorkReport
+========================================
+  주간 업무보고서 생성 (수동 실행)
+========================================
+
+작업경로: C:\Users\...\weekly-report-generator
 작성 날짜를 입력(YYYYMMDD): 20270115
 2027년 폴더를 생성했습니다.
 이미 해당 주의 파일이 존재합니다. 덮어쓰시겠습니까?(Y/N): y
@@ -66,49 +67,74 @@ Excel을 열어 행 높이를 자동 맞춤 중...
 Job Done!
 ```
 
-### 자동 실행 (무인)
+**특징:**
+- 대화형 프롬프트
+- 덮어쓰기/가져오기 여부 확인
+- 사용자가 직접 제어
+
+### ⚡ 자동 실행 (무인)
+
+**`보고서_자동생성.bat`** 파일을 더블클릭하세요.
 
 스케줄러 등록이나 자동화에 적합한 방식입니다.
 
-```bash
-# 특정 날짜로 실행
-python weekly-report-generator_unattended.py 20270115
+**옵션 1: 이번 주 금요일 자동 생성**
+```
+보고서_자동생성.bat 파일을 더블클릭
+```
 
-# 날짜 생략 시 이번 주 금요일 자동 계산
-python weekly-report-generator_unattended.py
+**옵션 2: 특정 날짜로 생성**
+```bash
+# CMD나 PowerShell에서
+보고서_자동생성.bat 20270115
 ```
 
 **특징:**
 - 파일이 이미 존재하면 자동으로 건너뜀
 - 이전 주 데이터 자동 복사 (오류 시 스킵)
-- 무인 실행에 최적화
 
 ## 🗂️ 프로젝트 구조
 
 ```
-WorkReport/
-├── weekly-report-generator.py          # 수동 실행용 스크립트 (대화형)
-├── weekly-report-generator_unattended.py      # 자동화 실행용 스크립트 (무인)
-├── res/                       # 리소스 폴더
-│   └── WW00_부서명_업무보고서_이름.xlsx  # Excel 템플릿
-├── 2026/                      # 연도별 자동 생성 폴더
+weekly-report-generator/
+├── 보고서_생성.bat               # 수동 실행용 (더블클릭)
+├── 보고서_자동생성.bat            # 자동 실행용 (더블클릭)
+├── setup.bat                    # 초기 설치 스크립트
+├── README.md                    # 프로젝트 설명서
+├── requirements.txt             # Python 패키지 목록
+├── .gitignore                   # Git 제외 파일 목록
+├── res/                         # 리소스 폴더
+│   ├── weekly-report-generator.py           # 수동 실행 Python 스크립트
+│   ├── weekly-report-generator_unattended.py # 자동 실행 Python 스크립트
+│   └── WW00_부서명_업무보고서_이름.xlsx       # Excel 템플릿
+├── 2026/                        # 연도별 자동 생성 폴더
 │   ├── WW01_...xlsx
 │   └── WW02_...xlsx
-└── 2027/                      # 새 연도 입력 시 자동 생성
+└── 2027/                        # 새 연도 입력 시 자동 생성
 ```
 
 ## ⚙️ 작업 스케줄러 등록 (선택사항)
 
 매주 자동으로 보고서를 생성하려면 Windows 작업 스케줄러에 등록하세요.
 
-1. **작업 스케줄러** 실행
+### 방법 1: 배치 파일 사용 (권장)
+
+1. **작업 스케줄러** 실행 (`Win + R` → `taskschd.msc`)
 2. **새 작업 만들기**
    - 이름: "주간 업무보고서 자동 생성"
    - 트리거: 매주 금요일 오전 9시
 3. **동작 설정**
-   - 프로그램: `C:\...\WorkReport\.venv\Scripts\python.exe`
-   - 인수: `C:\...\WorkReport\weekly-report-generator_unattended.py`
-   - 시작 위치: `C:\...\WorkReport`
+   - 프로그램: `C:\경로\weekly-report-generator\보고서_자동생성.bat`
+   - 시작 위치: `C:\경로\weekly-report-generator\`
+
+### 방법 2: Python 직접 실행
+
+1. **작업 스케줄러** 실행
+2. **새 작업 만들기**
+3. **동작 설정**
+   - 프로그램: `C:\경로\weekly-report-generator\.venv\Scripts\python.exe`
+   - 인수: `res\weekly-report-generator_unattended.py`
+   - 시작 위치: `C:\경로\weekly-report-generator\`
 
 ## 🔧 문제 해결
 
