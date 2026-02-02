@@ -24,7 +24,7 @@ Excel 템플릿을 기반으로 주간 업무보고서를 자동 생성하는 Py
 
 1. **저장소 복제**
 ```bash
-git clone https://github.com/사용자명/weekly-report-generator.git
+git clone https://github.com/frichel/weekly-report-generator.git
 cd weekly-report-generator
 ```
 
@@ -50,7 +50,7 @@ pip install -r requirements.txt
 사용자가 직접 입력하며 실행하는 방식입니다.
 
 ```bash
-python autorepocreate.py
+python weekly-report-generator.py
 ```
 
 **실행 예시:**
@@ -72,10 +72,10 @@ Job Done!
 
 ```bash
 # 특정 날짜로 실행
-python autorepocreate_pad.py 20270115
+python weekly-report-generator_unattended.py 20270115
 
 # 날짜 생략 시 이번 주 금요일 자동 계산
-python autorepocreate_pad.py
+python weekly-report-generator_unattended.py
 ```
 
 **특징:**
@@ -87,8 +87,8 @@ python autorepocreate_pad.py
 
 ```
 WorkReport/
-├── autorepocreate.py          # 수동 실행용 스크립트 (대화형)
-├── autorepocreate_pad.py      # 자동화 실행용 스크립트 (무인)
+├── weekly-report-generator.py          # 수동 실행용 스크립트 (대화형)
+├── weekly-report-generator_unattended.py      # 자동화 실행용 스크립트 (무인)
 ├── res/                       # 리소스 폴더
 │   └── WW00_부서명_업무보고서_이름.xlsx  # Excel 템플릿
 ├── 2026/                      # 연도별 자동 생성 폴더
@@ -107,7 +107,7 @@ WorkReport/
    - 트리거: 매주 금요일 오전 9시
 3. **동작 설정**
    - 프로그램: `C:\...\WorkReport\.venv\Scripts\python.exe`
-   - 인수: `C:\...\WorkReport\autorepocreate_pad.py`
+   - 인수: `C:\...\WorkReport\weekly-report-generator_unattended.py`
    - 시작 위치: `C:\...\WorkReport`
 
 ## 🔧 문제 해결
@@ -129,7 +129,3 @@ python C:\Python3xx\Scripts\pywin32_postinstall.py -install
 
 - `res/` 폴더가 스크립트와 같은 위치에 있는지 확인
 - Excel 템플릿 파일(.xlsx)이 `res/` 폴더에 있는지 확인
-
-## 📝 라이선스
-
-이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참조하세요.
