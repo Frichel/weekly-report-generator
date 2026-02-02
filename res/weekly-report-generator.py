@@ -56,8 +56,9 @@ def auto_fit_rows(file_path: str, sheet_name: str):
             excel.Quit()
 
 def main():
-    # 경로 설정 (WorkReport 루트)
-    base_path = os.path.dirname(os.path.realpath(__file__))
+    # 경로 설정 (스크립트가 res 폴더에 있으므로 상위 폴더가 작업 루트)
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    base_path = os.path.dirname(script_dir)  # res의 상위 폴더
     print("작업경로: %s" % base_path)
 
     # 날짜 결정
@@ -102,7 +103,7 @@ def main():
     # 새로운 문서 생성
     shutil.copyfile(os.path.join(res_path, name_form), new_file_path)
     WB = load_workbook(new_file_path)
-    WS = WB["WW00"]
+    WS = WB.worksheets[0]  # 첫 번째 시트 자동 선택
     make_date = submit.strftime("%Y-%m-%d")
     WS['A4'].value = "Date : %s" % make_date
 
