@@ -32,7 +32,3 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
-
-echo.
-echo Execution complete!
-pause
