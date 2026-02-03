@@ -1,5 +1,5 @@
-# Windows 배치 파일은 binary로 처리하여 ANSI(CP949) 인코딩 유지
-*.bat binary
+# Windows batch files (English only, no encoding issues)
+*.bat text eol=crlf
 
 # Python 파일은 UTF-8
 *.py text eol=lf

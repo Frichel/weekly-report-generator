@@ -1,83 +1,83 @@
 @echo off
 echo ========================================
-echo   주간 업무보고서 자동 생성 도구 설치
+echo   Weekly Report Generator - Setup
 echo ========================================
 echo.
 
-REM Python 설치 확인
+REM Check Python installation
 python --version >nul 2>&1
 if errorlevel 1 (
-    echo [오류] Python이 설치되어 있지 않습니다.
+    echo [ERROR] Python is not installed.
     echo.
-    echo Python 3.7 이상을 설치한 후 다시 실행해주세요.
-    echo 다운로드: https://www.python.org/downloads/
+    echo Please install Python 3.7 or higher and try again.
+    echo Download: https://www.python.org/downloads/
     echo.
     pause
     exit /b 1
 )
 
-echo [1/4] Python 버전 확인...
+echo [1/4] Checking Python version...
 python --version
 echo.
 
-REM 가상환경 존재 확인
+REM Check if virtual environment exists
 if exist .venv (
-    echo [알림] 기존 가상환경이 발견되었습니다.
-    set /p "reinstall=기존 가상환경을 삭제하고 재설치하시겠습니까? (Y/N): "
+    echo [INFO] Existing virtual environment found.
+    set /p "reinstall=Delete and reinstall? (Y/N): "
     if /i "%reinstall%"=="Y" (
-        echo [2/4] 기존 가상환경 삭제 중...
+        echo [2/4] Removing existing virtual environment...
         rmdir /s /q .venv
-        echo [2/4] 가상환경 생성 중...
+        echo [2/4] Creating virtual environment...
         python -m venv .venv
     ) else (
-        echo [2/4] 기존 가상환경 사용...
+        echo [2/4] Using existing virtual environment...
     )
 ) else (
-    echo [2/4] 가상환경 생성 중...
+    echo [2/4] Creating virtual environment...
     python -m venv .venv
 )
 echo.
 
-REM 가상환경 활성화
-echo [3/4] 가상환경 활성화 중...
+REM Activate virtual environment
+echo [3/4] Activating virtual environment...
 call .venv\Scripts\activate.bat
 if errorlevel 1 (
-    echo [오류] 가상환경 활성화에 실패했습니다.
+    echo [ERROR] Failed to activate virtual environment.
     pause
     exit /b 1
 )
 echo.
 
-REM pip 업그레이드
-echo [4/4] 필수 패키지 설치 중...
+REM Upgrade pip
+echo [4/4] Installing required packages...
 python -m pip install --upgrade pip --quiet
-echo   - pip 업그레이드 완료
+echo   - pip upgraded
 
-REM requirements.txt에서 패키지 설치
+REM Install packages from requirements.txt
 if exist requirements.txt (
     pip install -r requirements.txt --quiet
-    echo   - openpyxl 설치 완료
-    echo   - pywin32 설치 완료
+    echo   - openpyxl installed
+    echo   - pywin32 installed
 ) else (
     pip install openpyxl pywin32 --quiet
-    echo   - openpyxl 설치 완료
-    echo   - pywin32 설치 완료
+    echo   - openpyxl installed
+    echo   - pywin32 installed
 )
 echo.
 
 echo ========================================
-echo 설치가 완료되었습니다!
+echo Installation Complete!
 echo ========================================
 echo.
-echo 다음 명령어로 프로그램을 실행하세요:
+echo To generate reports:
 echo.
-echo   수동 실행 (대화형):
+echo   Manual (interactive):
 echo     create.bat
 echo.
-echo   자동 실행 (특정 날짜):
+echo   Automated (scheduled):
 echo     create_unattended.bat 20270115
 echo.
-echo 가상환경을 활성화하려면:
+echo To activate virtual environment:
 echo     .venv\Scripts\activate
 echo.
 pause
