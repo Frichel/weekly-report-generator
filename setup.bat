@@ -1,7 +1,6 @@
 @echo off
-chcp 65001 >nul
 echo ========================================
-echo 주간 업무보고서 자동 생성 도구 설치
+echo   주간 업무보고서 자동 생성 도구 설치
 echo ========================================
 echo.
 
@@ -67,16 +66,16 @@ if exist requirements.txt (
 echo.
 
 echo ========================================
-echo ✅ 설치가 완료되었습니다!
+echo 설치가 완료되었습니다!
 echo ========================================
 echo.
 echo 다음 명령어로 프로그램을 실행하세요:
 echo.
 echo   수동 실행 (대화형):
-echo     python weekly-report-generator.py
+echo     보고서_생성.bat
 echo.
 echo   자동 실행 (특정 날짜):
-echo     python weekly-report-generator_unattended.py 20270115
+echo     보고서_자동생성.bat 20270115
 echo.
 echo 가상환경을 활성화하려면:
 echo     .venv\Scripts\activate

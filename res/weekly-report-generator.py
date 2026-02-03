@@ -80,8 +80,29 @@ def main():
 
     # 리소스 및 템플릿 로드
     res_path = os.path.join(base_path, "res")
+    
+    # res 폴더 존재 확인
+    if not os.path.exists(res_path):
+        print("[오류] res 폴더를 찾을 수 없습니다.")
+        print(f"경로: {res_path}")
+        print("\n프로젝트 구조를 확인해주세요.")
+        input("종료하려면 Enter 키를 누르세요...")
+        sys.exit(1)
+    
     file_res = os.listdir(res_path)
-    name_form = [f for f in file_res if f.endswith('.xlsx')][0]
+    xlsx_templates = [f for f in file_res if f.endswith('.xlsx') and not f.startswith('~$')]
+    
+    # 템플릿 파일 존재 확인
+    if not xlsx_templates:
+        print("[오류] res 폴더에 템플릿 파일(.xlsx)이 없습니다.")
+        print(f"경로: {res_path}")
+        print("\nWW00으로 시작하는 Excel 템플릿 파일을 res 폴더에 넣어주세요.")
+        print("예시: WW00_부서명_업무보고서_이름.xlsx")
+        input("종료하려면 Enter 키를 누르세요...")
+        sys.exit(1)
+    
+    name_form = xlsx_templates[0]
+    print(f"템플릿 파일: {name_form}")
     
     # 연도 폴더의 기존 파일 목록
     xlsx_files = [f for f in os.listdir(year_folder) if f.endswith('.xlsx')]

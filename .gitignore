@@ -4,6 +4,9 @@
 venv/
 env/
 
+temp/
+res/*.xlsx
+
 __pycache__/
 *.pyc
 *.pyo
