@@ -1,4 +1,5 @@
-@echo off
+﻿@echo off
+chcp 65001 >nul 2>&1
 echo ========================================
 echo   주간 업무보고서 자동 생성 도구 설치
 echo ========================================
@@ -72,10 +73,10 @@ echo.
 echo 다음 명령어로 프로그램을 실행하세요:
 echo.
 echo   수동 실행 (대화형):
-echo     보고서_생성.bat
+echo     create.bat
 echo.
 echo   자동 실행 (특정 날짜):
-echo     보고서_자동생성.bat 20270115
+echo     create_unattended.bat 20270115
 echo.
 echo 가상환경을 활성화하려면:
 echo     .venv\Scripts\activate

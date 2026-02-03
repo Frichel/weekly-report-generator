@@ -12,6 +12,8 @@ __pycache__/
 *.pyo
 *.pyd
 
+convert-to-utf8bom.ps1
+
 *.vscode/
 *.idea/
 *.code-workspace
