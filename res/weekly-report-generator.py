@@ -15,13 +15,29 @@ def friday_of_week(dt: datetime) -> datetime:
     """주어진 날짜가 속한 주의 금요일을 반환"""
     return dt - timedelta(days=dt.weekday()) + timedelta(days=4)
 
-def get_submit_date() -> datetime:
-    """사용자로부터 날짜를 입력받거나 기본값을 반환"""
-    user_input = input("작성 날짜를 입력(YYYYMMDD): ").strip()
-    if user_input == "":
-        return datetime.today()
+def is_unattended_mode() -> bool:
+    """무인 모드 여부 확인 (--unattended 플래그 또는 날짜 인수 존재)"""
+    return '--unattended' in sys.argv or (len(sys.argv) >= 2 and sys.argv[1] != '--unattended')
+
+def get_submit_date(unattended: bool) -> datetime:
+    """날짜 결정: 대화형 또는 자동"""
+    # --unattended 플래그가 있는 경우, 날짜 인수 확인
+    date_arg = None
+    for arg in sys.argv[1:]:
+        if arg != '--unattended' and len(arg) == 8 and arg.isdigit():
+            date_arg = arg
+            break
+    
+    if date_arg:
+        # 명령행에서 날짜 지정
+        return datetime.strptime(date_arg, "%Y%m%d")
+    elif unattended:
+        # 무인 모드: 자동으로 이번 주 금요일
+        return friday_of_week(datetime.today())
     else:
-        return datetime.strptime(user_input, "%Y%m%d")
+        # 대화 모드: 사용자 입력
+        user_input = input("작성 날짜를 입력(YYYYMMDD): ").strip()
+        return datetime.today() if user_input == "" else datetime.strptime(user_input, "%Y%m%d")
 
 def auto_fit_rows(file_path: str, sheet_name: str):
     """Excel을 실제로 열어서 행 높이 자동 맞춤 실행"""
@@ -56,13 +72,16 @@ def auto_fit_rows(file_path: str, sheet_name: str):
             excel.Quit()
 
 def main():
+    # 실행 모드 확인
+    unattended = is_unattended_mode()
+    
     # 경로 설정 (스크립트가 res 폴더에 있으므로 상위 폴더가 작업 루트)
     script_dir = os.path.dirname(os.path.realpath(__file__))
     base_path = os.path.dirname(script_dir)  # res의 상위 폴더
     print("작업경로: %s" % base_path)
 
     # 날짜 결정
-    submit = get_submit_date()
+    submit = get_submit_date(unattended)
     
     # 연도 추출 및 연도 폴더 생성
     year = submit.strftime("%Y")
@@ -86,7 +105,8 @@ def main():
         print("[오류] res 폴더를 찾을 수 없습니다.")
         print(f"경로: {res_path}")
         print("\n프로젝트 구조를 확인해주세요.")
-        input("종료하려면 Enter 키를 누르세요...")
+        if not unattended:
+            input("종료하려면 Enter 키를 누르세요...")
         sys.exit(1)
     
     file_res = os.listdir(res_path)
@@ -98,7 +118,8 @@ def main():
         print(f"경로: {res_path}")
         print("\nWW00으로 시작하는 Excel 템플릿 파일을 res 폴더에 넣어주세요.")
         print("예시: WW00_부서명_업무보고서_이름.xlsx")
-        input("종료하려면 Enter 키를 누르세요...")
+        if not unattended:
+            input("종료하려면 Enter 키를 누르세요...")
         sys.exit(1)
     
     name_form = xlsx_templates[0]
@@ -113,13 +134,19 @@ def main():
     new_file_path = os.path.join(year_folder, new_name)
     last_file_path = os.path.join(year_folder, last_name)
 
-    # ---- 중복 파일 검사: 인터랙티브 ----
+    # ---- 중복 파일 검사 ----
     if new_name in xlsx_files:
-        check = 0
-        while check not in ["Y", "y"]:
-            check = input("이미 해당 주의 파일이 존재합니다. 덮어쓰시겠습니까?(Y/N): ")
-            if check in ["N", "n"]:
-                sys.exit(0)
+        if unattended:
+            # 무인 모드: 자동으로 건너뜀
+            print(f"이미 해당 주의 파일이 존재합니다. 생성 작업을 건너뜁니다: {year}\\{new_name}")
+            sys.exit(0)
+        else:
+            # 대화 모드: 사용자 확인
+            check = 0
+            while check not in ["Y", "y"]:
+                check = input("이미 해당 주의 파일이 존재합니다. 덮어쓰시겠습니까?(Y/N): ")
+                if check in ["N", "n"]:
+                    sys.exit(0)
 
     # 새로운 문서 생성
     shutil.copyfile(os.path.join(res_path, name_form), new_file_path)
@@ -157,40 +184,70 @@ def main():
     
     WB.save(new_file_path)
 
-    # ---- 이전 주 내용 가져오기: 인터랙티브 ----
+    # ---- 이전 주 내용 가져오기 ----
     if last_name in xlsx_files:
-        check = 0
-        while check not in ["Y", "y"]:
-            check = input("이전 주의 파일이 존재합니다. 기록된 내용을 가져오시겠습니까?(Y/N): ")
-            if check in ["N", "n"]:
-                sys.exit(0)
-        
-        WB_old = load_workbook(last_file_path)
-        WS_old = WB_old["WW%s" % WW_old]
-        cp = 4
-        while WS_old.cell(cp - 2, 1).value != "차주일정":
-            cp += 1
-        
-        for i in range(0, 5):
-            for j in range(0, 3):
-                WS.cell(8 + i, 3 + j).value = WS_old.cell(cp + i, 3 + j).value
-            for k in range(0, 2):
-                WS.cell(8 + i, 7 + k).value = WS_old.cell(cp + i, 6 + k).value
-        
-        for i in range(0, 3):
-            for j in range(0, 3):
-                WS.cell(25 + i, 1 + j).value = WS_old.cell(cp + 9 + i, 1 + j).value
-            for k in range(0, 2):
-                WS.cell(25 + i, 5 + k).value = WS_old.cell(cp + 9 + i, 5 + k).value
-        
-        WB.save(new_file_path)
+        if unattended:
+            # 무인 모드: 자동으로 가져오기 (오류 시 스킵)
+            try:
+                WB_old = load_workbook(last_file_path)
+                WS_old = WB_old["WW%s" % WW_old]
+                cp = 4
+                while WS_old.cell(cp - 2, 1).value != "차주일정":
+                    cp += 1
+                
+                for i in range(0, 5):
+                    for j in range(0, 3):
+                        WS.cell(8 + i, 3 + j).value = WS_old.cell(cp + i, 3 + j).value
+                    for k in range(0, 2):
+                        WS.cell(8 + i, 7 + k).value = WS_old.cell(cp + i, 6 + k).value
+                
+                for i in range(0, 3):
+                    for j in range(0, 3):
+                        WS.cell(25 + i, 1 + j).value = WS_old.cell(cp + 9 + i, 1 + j).value
+                    for k in range(0, 2):
+                        WS.cell(25 + i, 5 + k).value = WS_old.cell(cp + 9 + i, 5 + k).value
+                
+                WB.save(new_file_path)
+                print(f"이전 주({WW_old}) 내용 자동 반영 완료.")
+            except Exception as e:
+                print(f"이전 주 내용 가져오기 중 오류가 발생했지만 스킵합니다: {e}")
+        else:
+            # 대화 모드: 사용자 확인
+            check = 0
+            while check not in ["Y", "y"]:
+                check = input("이전 주의 파일이 존재합니다. 기록된 내용을 가져오시겠습니까?(Y/N): ")
+                if check in ["N", "n"]:
+                    break
+            
+            if check in ["Y", "y"]:
+                WB_old = load_workbook(last_file_path)
+                WS_old = WB_old["WW%s" % WW_old]
+                cp = 4
+                while WS_old.cell(cp - 2, 1).value != "차주일정":
+                    cp += 1
+                
+                for i in range(0, 5):
+                    for j in range(0, 3):
+                        WS.cell(8 + i, 3 + j).value = WS_old.cell(cp + i, 3 + j).value
+                    for k in range(0, 2):
+                        WS.cell(8 + i, 7 + k).value = WS_old.cell(cp + i, 6 + k).value
+                
+                for i in range(0, 3):
+                    for j in range(0, 3):
+                        WS.cell(25 + i, 1 + j).value = WS_old.cell(cp + 9 + i, 1 + j).value
+                    for k in range(0, 2):
+                        WS.cell(25 + i, 5 + k).value = WS_old.cell(cp + 9 + i, 5 + k).value
+                
+                WB.save(new_file_path)
 
     # ---- pywin32를 사용한 행 높이 자동 맞춤 ----
     auto_fit_rows(os.path.abspath(new_file_path), f"WW{WW}")
 
     print(f"파일 생성 완료: {year}\\{new_name}")
     print("Job Done!")
-    input() # 종료 전 대기
+    
+    if not unattended:
+        input()  # 대화 모드에서만 종료 전 대기
 
 if __name__ == "__main__":
     main()

@@ -19,10 +19,10 @@ if not exist .venv (
 REM Run with date argument or auto-detect
 if "%1"=="" (
     echo No date specified - using this Friday
-    .venv\Scripts\python.exe res\weekly-report-generator_unattended.py
+    .venv\Scripts\python.exe res\weekly-report-generator.py --unattended
 ) else (
     echo Date: %1
-    .venv\Scripts\python.exe res\weekly-report-generator_unattended.py %1
+    .venv\Scripts\python.exe res\weekly-report-generator.py --unattended %1
 )
 
 REM Check for errors
