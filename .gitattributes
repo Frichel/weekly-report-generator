@@ -1,0 +1,14 @@
+# Windows 배치 파일 설정
+*.bat text eol=crlf
+
+# Python 파일은 UTF-8
+*.py text eol=lf
+
+# Markdown 파일은 UTF-8
+*.md text eol=lf
+
+# 텍스트 파일 기본 설정
+*.txt text eol=crlf
+
+# Excel 파일은 바이너리
+*.xlsx binary
